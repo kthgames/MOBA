@@ -7,8 +7,8 @@ public class MOBA : ModuleRules
 	public MOBA(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicIncludePaths.AddRange(new string[] { "MOBA" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","EnhancedInput" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
