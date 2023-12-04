@@ -21,22 +21,22 @@ AMBCharacterPlayer::AMBCharacterPlayer()
 	FollowCamera->bUsePawnControlRotation = false;
 
 	//input
-	static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMCRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/ThirdPerson/Input/IMC_Default.IMC_Default'"));
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMCRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/MOBA/Input/IMC_Default.IMC_Default'"));
 	if (IMCRef.Object != nullptr)
 	{
 		DefaultMappingContext = IMCRef.Object;
 	}
-	static ConstructorHelpers::FObjectFinder<UInputAction> IAMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ThirdPerson/Input/Actions/IA_Move.IA_Move'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> IAMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MOBA/Input/Actions/IA_Move.IA_Move'"));
 	if (IAMoveRef.Object != nullptr)
 	{
 		MoveAction = IAMoveRef.Object;
 	}
-	static ConstructorHelpers::FObjectFinder<UInputAction> IAJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ThirdPerson/Input/Actions/IA_Jump.IA_Jump'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> IAJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MOBA/Input/Actions/IA_Jump.IA_Jump'"));
 	if (IAJumpRef.Object != nullptr)
 	{
 		JumpAction = IAJumpRef.Object;
 	}
-	static ConstructorHelpers::FObjectFinder<UInputAction> IALookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ThirdPerson/Input/Actions/IA_Look.IA_Look'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> IALookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MOBA/Input/Actions/IA_Look.IA_Look'"));
 	if (IALookRef.Object != nullptr)
 	{
 		LookAction = IALookRef.Object;
@@ -47,7 +47,7 @@ void AMBCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	APlayerController* PC = CastChecked<APlayerController>(GetController());
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC))
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
@@ -55,6 +55,7 @@ void AMBCharacterPlayer::BeginPlay()
 
 void AMBCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	UEnhancedInputComponent* EIComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 	EIComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 	EIComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -69,17 +70,18 @@ void AMBCharacterPlayer::Move(const FInputActionValue& Value)
 	const FRotator Rotation = Controller->GetControlRotation();
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-	const FVector ForwardDir = FRotationMatrix(YawRotation).GetUnitAxes(EAxis::X);
-	const FVector RightDir = FRotationMatrix(YawRotation).GetUnitAxes(EAxis::Y);
+	const FVector ForwardDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	const FVector RightDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	AddMovementInput(ForwardDir, MoveVector.Y);
-	AddMovementInput(RightDir, MoveVector.X);
+	AddMovementInput(ForwardDir, MoveVector.X);
+	AddMovementInput(RightDir, MoveVector.Y);
 }
 
 void AMBCharacterPlayer::Look(const FInputActionValue& Value)
 {
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
-	AddControllerYawInput((LookAxisVector.X);
-	AddControllerPitchInput((LookAxisVector.Y);
+
+	AddControllerYawInput(LookAxisVector.X);
+	AddControllerPitchInput(LookAxisVector.Y);
 }
 
